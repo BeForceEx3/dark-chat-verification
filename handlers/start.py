@@ -1,6 +1,6 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-from config import ADMIN_ID
+[translate:from telegram import Update]
+[translate:from telegram.ext import ContextTypes]
+[translate:from config import ADMIN_ID]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
