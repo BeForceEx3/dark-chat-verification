@@ -1,57 +1,64 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes, CallbackQueryHandler
-from config import ADMIN_ID, DATA_PATH
-from handlers.chat import user_partners, reload_data
-from utils.storage import load_data, save_data
+from telegram.ext import ContextTypes
+from config import ADMINID, DATAPATH
+from handlers.chat import userpartners, reloaddata
+from utils.storage import loaddata, savedata
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
+async def handlemessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    userid = update.effective_user.id
     text = update.message.text
     
-    if user_id != ADMIN_ID:
-        _, messages = load_data(DATA_PATH)
-        partner_id = user_partners.get(user_id)
-        if not partner_id:
-            await update.message.reply_text('❗ <b>Сначала найдите партнёра: /find</b>', parse_mode='HTML')
-            return
-        
-        await context.bot.send_message(partner_id, f'👤 <b>Аноним:</b> {text}', parse_mode='HTML')
-        
-        # Лог админу
-        msg = await context.bot.send_message(
-            ADMIN_ID, f'👤de>{user_id}</code> → 👤de>{partner_id}</code>: {text}', 
-            parse_mode='HTML'
-        )
-        messages[msg.message_id] = {'from': user_id, 'to': partner_id}
-        save_data(DATA_PATH, user_partners, messages)
+    if userid != ADMINID:
         return
     
-    # Админ команды
-    if text == '/stats':
-        reload_data()
-        active_chats = len([p for p in user_partners.values() if p is not None]) // 2
-        waiting = len([p for p in user_partners.values() if p is None])
-        keyboard = [[InlineKeyboardButton("🔄 Обновить", callback_data='stats')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            f'📊 <b>Статистика:</b>\n\n'
-            f'🔗 Активных чатов: de>{active_chats}</code>\n'
-            f'⏳ В очереди: de>{waiting}</code>\n'
-            f'💬 Сообщений: de>{len(messages)}</code>', 
-            parse_mode='HTML', reply_markup=reply_markup)
+    partners, messages = loaddata(DATAPATH)
+    partnerid = userpartners.get(userid)
+    
+    if not partnerid:
+        await update.message.reply_text("<b>find</b>", parse_mode='HTML')
+        return
+    
+    await context.bot.send_message(partnerid, f"<b><b>{text}</b>", parse_mode='HTML')
+    
+    msg = await context.bot.send_message(
+        ADMINID, 
+        f"<code>de>{userid}</code> de>{partnerid}</code>\n{text}", 
+        parse_mode='HTML'
+    )
+    messages[msg.message_id] = {"from": userid, "to": partnerid}
+    savedata(DATAPATH, userpartners, messages)
+    return
+
+if text == "stats":
+    reloaddata()
+    partners, messages = loaddata(DATAPATH)  # Загружаем messages
+    activechats = len([p for p in userpartners.values() if p is not None and p != 0]) // 2
+    waiting = len([p for p in userpartners.values() if p is None])
+    
+    keyboard = [[InlineKeyboardButton("🔄", callback_data="stats")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        f"<b>👥 Активных чатов:</b> <code>{activechats}</code>\n"
+        f"<b>⏳ В ожидании:</b> <code>{waiting}</code>\n"
+        f"<b>💬 Сообщений:</b> <code>{len(messages)}</code>", 
+        parse_mode='HTML', 
+        reply_markup=reply_markup
+    )
 
 async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     
-    if query.data == 'stats':
-        reload_data()
-        active_chats = len([p for p in user_partners.values() if p is not None]) // 2
-        waiting = len([p for p in user_partners.values() if p is None])
+    if query.data == "stats":
+        reloaddata()
+        partners, messages = loaddata(DATAPATH)  # Загружаем messages
+        activechats = len([p for p in userpartners.values() if p is not None and p != 0]) // 2
+        waiting = len([p for p in userpartners.values() if p is None])
+        
         await query.edit_message_text(
-            f'📊 <b>Статистика:</b>\n\n'
-            f'🔗 Активных чатов: de>{active_chats}</code>\n'
-            f'⏳ В очереди: de>{waiting}</code>\n'
-            f'💬 Сообщений: de>{len(messages)}</code>', 
+            f"<b>👥 Активных чатов:</b> <code>{activechats}</code>\n"
+            f"<b>⏳ В ожидании:</b> <code>{waiting}</code>\n"
+            f"<b>💬 Сообщений:</b> <code>{len(messages)}</code>", 
             parse_mode='HTML'
-        )
+        )[file:1]
