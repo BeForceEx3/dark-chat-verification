@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    color: #e0e0e0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#loginForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 350px;
+}
+
+#loginForm h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #00d4ff;
+    text-shadow: 0 0 20px #00d4ff;
+}
+
+input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #00d4ff;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+}
+
+#chatContainer {
+    display: none;
+    height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.message {
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message.sent {
+    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    margin-left: auto;
+    text-align: right;
+}
+
+.message.received {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#messageInput {
+    width: 80%;
+    padding: 15px;
+    border: none;
+    border-radius: 25px 0 0 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 16px;
+}
+
+#sendButton {
+    width: 20%;
+    padding: 15px;
+    border: none;
+    border-radius: 0 25px 25px 0;
+    background: linear-gradient(45deg, #00d4ff, #0099cc);
+    color: white;
+    cursor: pointer;
+}
+
+.status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    color: #00d4ff;
+}
