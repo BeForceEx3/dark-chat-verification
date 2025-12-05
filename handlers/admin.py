@@ -1,35 +1,25 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-from utils.storage import load_data
-from config import DATA_PATH
+[translate:from telegram import Update]
+[translate:from telegram.ext import ContextTypes]
+[translate:from config import ADMIN_ID, DATA_PATH]  # ← ДОБАВЬТЕ ЭТУ СТРОКУ
+[translate:from handlers.chat import user_partners, admin_messages, load_data, save_data]
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text
     
-    if user_id == ADMIN_ID:
-        # Админ-команды
-        if text.startswith('/stats'):
-            partners, messages = load_data(DATA_PATH)
-            active_chats = len([p for p in partners.values() if p is not None])
-            await update.message.reply_text(f'📊 Статистика:\nАктивных чатов: {active_chats}\nСообщений: {len(messages)}')
+    if user_id == ADMIN_ID and text == '/stats':  # ← ТЕПЕРЬ РАБОТАЕТ
+        load_data()
+        active = len([p for p in user_partners.values() if p is not None]) // 2
+        await update.message.reply_text(f'📊 Активных чатов: {active}\nСообщений: {len(admin_messages)}')
         return
     
-    # Обычные сообщения - анонимный чат
-    reload_data()
+    load_data()
     partner_id = user_partners.get(user_id)
-    
     if not partner_id:
-        await update.message.reply_text('Сначала найдите партнера: /find')
+        await update.message.reply_text('❗ /find')
         return
     
-    # Отправляем партнеру анонимно
-    await context.bot.send_message(partner_id, f'👤 Аноним: {text}')
-    
-    # Логируем админу
-    msg = await context.bot.send_message(
-        ADMIN_ID, 
-        f'👤{user_id} → 👤{partner_id}: {text}'
-    )
-    admin_messages[msg.message_id] = {'from_user': user_id, 'to_user': partner_id}
-    save_data(DATA_PATH, user_partners, admin_messages)
+    await context.bot.send_message(partner_id, f'👤 {text}')
+    msg = await context.bot.send_message(ADMIN_ID, f'👤{user_id}→{partner_id}: {text}')
+    admin_messages[msg.message_id] = {'from': user_id, 'to': partner_id}
+    save_data()
